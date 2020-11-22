@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
-messageID = 0
-messageCH = 0
+messageID = None
+messageCH = None
 client = discord.Client()
 santaPhrases = [
     'HoHoHo!',
@@ -42,7 +42,7 @@ async def on_message(message):
         return
 
     if message.content == '!santa event':
-        if messageID != 0:
+        if messageID != None:
             await message.channel.send("You've already started an event.")
             return
         response = "In order to participate to this event please react with a ✅ to this comment!"
@@ -52,26 +52,26 @@ async def on_message(message):
         return
 
     if message.content == '!santa event end':
-        if messageID == 0:
+        if messageID == None:
             await message.channel.send('Please start an event first!')
             return
         else:
-            m = await messageCH.fetch_message(messageID)
+            originalMessage = await messageCH.fetch_message(messageID)
             users = None
-            for reaction in m.reactions:
+            for reaction in originalMessage.reactions:
                 if reaction.emoji == '✅':
                     users = await reaction.users().flatten()
                     break
             
             if users == None or len(users) < 2:
-                messageID = 0
-                messageCH = 0
+                messageID = None
+                messageCH = None
                 await message.channel.send("In order for the event to take place, more people need to take part in this event. Santa will write this on his list.")
                 return 
 
             random.shuffle(users)
             for i in range(len(users)):
-                temp = f"You will be {users[(i+1)%(len(users))].name}\'s Secret Santa 🎅."
+                temp = f"You will be {users[(i+1)%len(users)].name}\'s Secret Santa 🎅."
                 await users[i].send(temp)
             await message.channel.send('Event ended, check your DMs.')
             
