@@ -36,40 +36,43 @@ async def on_message(message):
         response = random.choice(santaPhrases)
         await message.channel.send(response)
         return
-    
 
     if message.content == '!satan':
         await message.add_reaction('💢')
         return
 
     if message.content == '!santa event':
+        if messageID != 0:
+            await message.channel.send("You've already started an event.")
+            return
         response = "In order to participate to this event please react with a ✅ to this comment!"
         message = await message.channel.send(response)
         messageID = message.id
         messageCH = message.channel
         return
 
-
     if message.content == '!santa event end':
         if messageID == 0:
             await message.channel.send('Please start an event first!')
             return
         else:
-            await message.channel.send('Event ended, check your DMs.')
             m = await messageCH.fetch_message(messageID)
-
+            users = None
             for reaction in m.reactions:
                 if reaction.emoji == '✅':
                     users = await reaction.users().flatten()
                     break
             
-            if len(users) < 2:
+            if users == None or len(users) < 2:
+                messageID = 0
+                messageCH = 0
+                await message.channel.send("In order for the event to take place, more people need to take part in this event. Santa will write this on his list.")
                 return 
 
             random.shuffle(users)
             for i in range(len(users)):
                 temp = f"You will be {users[(i+1)%(len(users))].name}\'s Secret Santa 🎅."
                 await users[i].send(temp)
-
+            await message.channel.send('Event ended, check your DMs.')
             
 client.run(TOKEN)

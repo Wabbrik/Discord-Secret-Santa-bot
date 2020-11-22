@@ -1,5 +1,4 @@
 # Discord-Secret-Santa-bot
-=============================
 ### Prequisites
 You should also create a {.env} file containing the following:
 <br/>
